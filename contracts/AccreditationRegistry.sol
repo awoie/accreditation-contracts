@@ -17,7 +17,7 @@ import "./AccreditationPausable.sol";
 // - Pause contract (only admin)
 // - ERC721 full interface (base, metadata, enumerable)
 
-contract Accreditation is Initializable, ERC721, ERC721Enumerable, AccreditationRoles, AccreditationPausable {
+contract AccreditationRegistry is Initializable, ERC721, ERC721Enumerable, AccreditationRoles, AccreditationPausable {
     event AccreditationToken(uint256 accreditationId, uint256 tokenId);
 
     // Token name

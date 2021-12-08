@@ -70,15 +70,6 @@ contract XAccreditationRegistry is Initializable, ERC721, ERC721Enumerable, Accr
         accreditationId = tokenAccreditation(tokenId);
     }
 
-/*
-    function getSvg(uint tokenId) private view returns (string memory) {
-        string[3] memory parts;
-        parts[0] = "<svg viewBox='0 0 350 350'><style>.a { fill: #0000; font-size: 18px; }</style><text x='10' y='10' class='a'>Token #";
-        parts[1] = string(tokenId);
-        parts[2] = "</text></svg>";      
-        return string(abi.encodePacked, parts[0], parts[1], parts[2]);
-    }
-*/
     /**
      * @dev Sets the tokenURI for an accreditationId
      * @param tokenURI address owning the tokens list to be accessed
@@ -96,22 +87,7 @@ contract XAccreditationRegistry is Initializable, ERC721, ERC721Enumerable, Accr
      */
     function tokenURI(uint256 tokenId) external view returns (string memory) {
         uint accreditationId = _tokenAccreditationId[tokenId];
-        if (accreditationId == 0) {
-            return "":
-        }
-
-//        return _accreditationIdTokenURI[accreditationId];
-//        string memory svgData = getSvg(tokenId);
-//        string memory tokenURI = string(
-//            abi.encodePacked('{"name": "KYC DAO", "description": "", "image_data": "', bytes(svgData), '"}'));
-
-        string memory uri = string(abi.encodePacked('{"name": "KYC DAO"}'));            
-
-        //string memory json = Base64.encode(bytes(string(
-        //    abi.encodePacked('{"name": "KYC DAO", "description": "", "image_data": "', bytes(svgData), '"}'))));
-        //return string(abi.encodePacked('data:application/json;base64,', json));
-
-        return uri;
+        return _accreditationIdTokenURI[accreditationId];
     }
 
     function setBaseURI(string memory baseURI) public onlyAdmin whenNotPaused {
@@ -231,9 +207,6 @@ contract XAccreditationRegistry is Initializable, ERC721, ERC721Enumerable, Accr
      * @return A boolean that indicates if the operation was successful.
      */
     function _mintToken(uint256 accreditationId, uint256 tokenId, address to) internal returns (bool) {
-        if (accreditationId == 0) {
-            return false;
-        }
         // TODO Verify that the token receiver ('to') do not have already a token for the event ('eventId')
         _mint(to, tokenId);
         _tokenAccreditationId[tokenId] = accreditationId;

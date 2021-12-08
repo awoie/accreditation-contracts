@@ -3,7 +3,6 @@
   "name": "KycDao",
   "version": "0.1.0",
   "contracts": {
-    "AccreditationRegistry": "AccreditationRegistry",
     "XAccreditationRegistry": "XAccreditationRegistry"
   },
   "dependencies": {},
