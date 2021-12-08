@@ -96,6 +96,10 @@ contract XAccreditationRegistry is Initializable, ERC721, ERC721Enumerable, Accr
      */
     function tokenURI(uint256 tokenId) external view returns (string memory) {
         uint accreditationId = _tokenAccreditationId[tokenId];
+        if (accreditationId == 0) {
+            return "":
+        }
+
 //        return _accreditationIdTokenURI[accreditationId];
 //        string memory svgData = getSvg(tokenId);
 //        string memory tokenURI = string(
@@ -227,6 +231,9 @@ contract XAccreditationRegistry is Initializable, ERC721, ERC721Enumerable, Accr
      * @return A boolean that indicates if the operation was successful.
      */
     function _mintToken(uint256 accreditationId, uint256 tokenId, address to) internal returns (bool) {
+        if (accreditationId == 0) {
+            return false;
+        }
         // TODO Verify that the token receiver ('to') do not have already a token for the event ('eventId')
         _mint(to, tokenId);
         _tokenAccreditationId[tokenId] = accreditationId;

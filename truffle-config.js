@@ -11,12 +11,12 @@ module.exports = {
     },
     ropsten: {
       provider: function() {
-        if (!process.env.POAP_ROPSTEN_PK) {
-          console.error('POAP_ROPSTEN_PK env variable is needed');
+        if (!process.env.KYCDAO_ROPSTEN_PK) {
+          console.error('KYCDAO_ROPSTEN_PK env variable is needed');
           process.abort();
         }
         return new HDWalletProvider(
-          process.env.POAP_ROPSTEN_PK,
+          process.env.KYCDAO_ROPSTEN_PK,
           'https://ropsten.infura.io/v3/cf7a7eed37254ec4b95670607e76a917'
         );
       },
@@ -26,12 +26,12 @@ module.exports = {
     },
     kovan: {
       provider: function() {
-        if (!process.env.POAP_KOVAN_PK) {
-          console.error('POAP_KOVAN_PK env variable is needed');
+        if (!process.env.KYCDAO_KOVAN_PK) {
+          console.error('KYCDAO_KOVAN_PK env variable is needed');
           process.abort();
         }
         return new HDWalletProvider(
-          process.env.POAP_ROPSTEN_PK,
+          process.env.KYCDAO_ROPSTEN_PK,
           'https://kovan.infura.io/v3/cf7a7eed37254ec4b95670607e76a917'
         );
       },
@@ -41,12 +41,12 @@ module.exports = {
     },
     sokol: {
       provider: function() {
-        if (!process.env.POAP_SOKOL_PK) {
-          console.error('POAP_SOKOL_PK env variable is needed');
+        if (!process.env.KYCDAO_SOKOL_PK) {
+          console.error('KYCDAO_SOKOL_PK env variable is needed');
           process.abort();
         }
         return new HDWalletProvider(
-          process.env.POAP_SOKOL_PK,
+          process.env.KYCDAO_SOKOL_PK,
           "https://sokol.poa.network"
         );
       },
@@ -56,12 +56,12 @@ module.exports = {
     },
     xdai: {
       provider: function() {
-        if (!process.env.POAP_XDAI_PK) {
-          console.error('POAP_XDAI_PK env variable is needed');
+        if (!process.env.KYCDAO_XDAI_PK) {
+          console.error('KYCDAO_XDAI_PK env variable is needed');
           process.abort();
         }
         return new HDWalletProvider(
-          process.env.POAP_XDAI_PK,
+          process.env.KYCDAO_XDAI_PK,
           "https://dai.poa.network"
         );
       },
@@ -71,12 +71,12 @@ module.exports = {
     },
     mainnet: {
       provider: function() {
-        if (!process.env.POAP_MAIN_PK) {
-          console.error('POAP_MAIN_PK env variable is needed');
+        if (!process.env.KYCDAO_MAIN_PK) {
+          console.error('KYCDAO_MAIN_PK env variable is needed');
           process.abort();
         }
         return new HDWalletProvider(
-          process.env.POAP_MAIN_PK,
+          process.env.KYCDAO_MAIN_PK,
           'https://mainnet.infura.io/v3/cf7a7eed37254ec4b95670607e76a917'
         );
       },
@@ -86,12 +86,12 @@ module.exports = {
     },
     binancetestnet: {
       provider: function() {
-        if (!process.env.POAP_BINANCE_TEST_PK) {
-          console.error('POAP_BINANCE_TEST_PK env variable is needed');
+        if (!process.env.KYCDAO_BINANCE_TEST_PK) {
+          console.error('KYCDAO_BINANCE_TEST_PK env variable is needed');
           process.abort();
         }
         return new HDWalletProvider(
-          process.env.POAP_BINANCE_TEST_PK,
+          process.env.KYCDAO_BINANCE_TEST_PK,
           'https://data-seed-prebsc-1-s1.binance.org:8545'
         );
       },
