@@ -4,21 +4,20 @@ import "zos-lib/contracts/Initializable.sol";
 import "openzeppelin-eth/contracts/token/ERC721/ERC721.sol";
 import "openzeppelin-eth/contracts/token/ERC721/ERC721Enumerable.sol";
 import "openzeppelin-eth/contracts/token/ERC721/IERC721Metadata.sol";
-import "./PoapRoles.sol";
-import "./PoapPausable.sol";
-
+import "./AccreditationRoles.sol";
+import "./AccreditationPausable.sol";
 
 // Desired Features
-// - Add Event
-// - Add Event Organizer
-// - Mint token for an event
-// - Batch Mint
-// - Burn Tokens (only admin?)
+// - Add type of accreditation
+// - Add accreditors
+// - Mint token for an accreditation
+// - Batch mint
+// - Burn tokens (only admin?)
 // - Pause contract (only admin)
 // - ERC721 full interface (base, metadata, enumerable)
 
-contract Poap is Initializable, ERC721, ERC721Enumerable, PoapRoles, PoapPausable {
-    event EventToken(uint256 eventId, uint256 tokenId);
+contract XAccreditationRegistry is Initializable, ERC721, ERC721Enumerable, AccreditationRoles, AccreditationPausable {
+    event AccreditationToken(uint256 indexed accreditationId, uint256 tokenId);
 
     // Token name
     string private _name;
@@ -30,11 +29,13 @@ contract Poap is Initializable, ERC721, ERC721Enumerable, PoapRoles, PoapPausabl
     string private _baseURI;
 
     // Last Used id (used to generate new ids)
-    uint256 private lastId;
+    uint256 public lastId;
 
-    // EventId for each token
-    mapping(uint256 => uint256) private _tokenEvent;
+    // AccreditationId for each token
+    mapping(uint256 => uint256) private _tokenAccreditationId;
 
+    // tokenURI for each AccreditationId
+    mapping(uint256 => string) private _accreditationIdTokenURI;
 
     bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x5b5e139f;
 
@@ -54,8 +55,8 @@ contract Poap is Initializable, ERC721, ERC721Enumerable, PoapRoles, PoapPausabl
         return _symbol;
     }
 
-    function tokenEvent(uint256 tokenId) public view returns (uint256) {
-        return _tokenEvent[tokenId];
+    function tokenAccreditation(uint256 tokenId) public view returns (uint256) {
+        return _tokenAccreditationId[tokenId];
     }
 
     /**
@@ -64,9 +65,29 @@ contract Poap is Initializable, ERC721, ERC721Enumerable, PoapRoles, PoapPausabl
      * @param index uint256 representing the index to be accessed of the requested tokens list
      * @return uint256 token ID at the given index of the tokens list owned by the requested address
      */
-    function tokenDetailsOfOwnerByIndex(address owner, uint256 index) public view returns (uint256 tokenId, uint256 eventId) {
+    function tokenDetailsOfOwnerByIndex(address owner, uint256 index) public view returns (uint256 tokenId, uint256 accreditationId) {
         tokenId = tokenOfOwnerByIndex(owner, index);
-        eventId = tokenEvent(tokenId);
+        accreditationId = tokenAccreditation(tokenId);
+    }
+
+/*
+    function getSvg(uint tokenId) private view returns (string memory) {
+        string[3] memory parts;
+        parts[0] = "<svg viewBox='0 0 350 350'><style>.a { fill: #0000; font-size: 18px; }</style><text x='10' y='10' class='a'>Token #";
+        parts[1] = string(tokenId);
+        parts[2] = "</text></svg>";      
+        return string(abi.encodePacked, parts[0], parts[1], parts[2]);
+    }
+*/
+    /**
+     * @dev Sets the tokenURI for an accreditationId
+     * @param tokenURI address owning the tokens list to be accessed
+     * @param accreditationId uint256 representing the accreditationId for the new tokenURI
+     */
+    function setTokenURIForAccreditationId(uint256 accreditationId, string memory tokenURI) 
+    public whenNotPaused onlyAccreditationMinter(accreditationId)
+    {
+        _accreditationIdTokenURI[accreditationId] = tokenURI;
     }
 
     /**
@@ -74,12 +95,28 @@ contract Poap is Initializable, ERC721, ERC721Enumerable, PoapRoles, PoapPausabl
      * @return string representing the token uri
      */
     function tokenURI(uint256 tokenId) external view returns (string memory) {
-        uint eventId = _tokenEvent[tokenId];
-        return _strConcat(_baseURI, _uint2str(eventId), "/", _uint2str(tokenId), "");
+        uint accreditationId = _tokenAccreditationId[tokenId];
+//        return _accreditationIdTokenURI[accreditationId];
+//        string memory svgData = getSvg(tokenId);
+//        string memory tokenURI = string(
+//            abi.encodePacked('{"name": "KYC DAO", "description": "", "image_data": "', bytes(svgData), '"}'));
+
+        string memory uri = string(abi.encodePacked('{"name": "KYC DAO"}'));            
+
+        //string memory json = Base64.encode(bytes(string(
+        //    abi.encodePacked('{"name": "KYC DAO", "description": "", "image_data": "', bytes(svgData), '"}'))));
+        //return string(abi.encodePacked('data:application/json;base64,', json));
+
+        return uri;
     }
 
     function setBaseURI(string memory baseURI) public onlyAdmin whenNotPaused {
         _baseURI = baseURI;
+    }
+
+    function setLastId(uint256 newLastId) public onlyAdmin whenNotPaused {
+        require(lastId < newLastId);
+        lastId = newLastId;
     }
 
     function approve(address to, uint256 tokenId) public whenNotPaused {
@@ -96,42 +133,28 @@ contract Poap is Initializable, ERC721, ERC721Enumerable, PoapRoles, PoapPausabl
 
     /**
      * @dev Function to mint tokens
-     * @param eventId EventId for the new token
+     * @param accreditationId accreditationId for the new token
      * @param to The address that will receive the minted tokens.
      * @return A boolean that indicates if the operation was successful.
      */
-    function mintToken(uint256 eventId, address to)
-    public whenNotPaused onlyEventMinter(eventId) returns (bool)
+    function mintToken(uint256 accreditationId, address to)
+    public whenNotPaused onlyAccreditationMinter(accreditationId) returns (bool)
     {
         lastId += 1;
-        return _mintToken(eventId, lastId, to);
+        return _mintToken(accreditationId, lastId, to);
     }
-
-    /**
-     * @dev Function to mint tokens with a specific id
-     * @param eventId EventId for the new token
-     * @param tokenId TokenId for the new token
-     * @param to The address that will receive the minted tokens.
-     * @return A boolean that indicates if the operation was successful.
-     */
-    function mintToken(uint256 eventId, uint256 tokenId, address to)
-    public whenNotPaused onlyEventMinter(eventId) returns (bool)
-    {
-        return _mintToken(eventId, tokenId, to);
-    }
-
 
     /**
      * @dev Function to mint tokens
-     * @param eventId EventId for the new token
+     * @param accreditationId AccreditationId for the new token
      * @param to The address that will receive the minted tokens.
      * @return A boolean that indicates if the operation was successful.
      */
-    function mintEventToManyUsers(uint256 eventId, address[] memory to)
-    public whenNotPaused onlyEventMinter(eventId) returns (bool)
+    function mintEventToManyUsers(uint256 accreditationId, address[] memory to)
+    public whenNotPaused onlyAccreditationMinter(accreditationId) returns (bool)
     {
         for (uint256 i = 0; i < to.length; ++i) {
-            _mintToken(eventId, lastId + 1 + i, to[i]);
+            _mintToken(accreditationId, lastId + 1 + i, to[i]);
         }
         lastId += to.length;
         return true;
@@ -139,17 +162,17 @@ contract Poap is Initializable, ERC721, ERC721Enumerable, PoapRoles, PoapPausabl
 
     /**
      * @dev Function to mint tokens
-     * @param eventIds EventIds to assing to user
+     * @param accreditationIds AccreditationIds to assing to user
      * @param to The address that will receive the minted tokens.
      * @return A boolean that indicates if the operation was successful.
      */
-    function mintUserToManyEvents(uint256[] memory eventIds, address to)
+    function mintUserToManyAccreditations(uint256[] memory accreditationIds, address to)
     public whenNotPaused onlyAdmin() returns (bool)
     {
-        for (uint256 i = 0; i < eventIds.length; ++i) {
-            _mintToken(eventIds[i], lastId + 1 + i, to);
+        for (uint256 i = 0; i < accreditationIds.length; ++i) {
+            _mintToken(accreditationIds[i], lastId + 1 + i, to);
         }
-        lastId += eventIds.length;
+        lastId += accreditationIds.length;
         return true;
     }
 
@@ -167,8 +190,8 @@ contract Poap is Initializable, ERC721, ERC721Enumerable, PoapRoles, PoapPausabl
     {
         ERC721.initialize();
         ERC721Enumerable.initialize();
-        PoapRoles.initialize(msg.sender);
-        PoapPausable.initialize();
+        AccreditationRoles.initialize(msg.sender);
+        AccreditationPausable.initialize();
 
         // Add the requested admins
         for (uint256 i = 0; i < admins.length; ++i) {
@@ -193,21 +216,21 @@ contract Poap is Initializable, ERC721, ERC721Enumerable, PoapRoles, PoapPausabl
     function _burn(address owner, uint256 tokenId) internal {
         super._burn(owner, tokenId);
 
-        delete _tokenEvent[tokenId];
+        delete _tokenAccreditationId[tokenId];
     }
 
     /**
      * @dev Function to mint tokens
-     * @param eventId EventId for the new token
+     * @param accreditationId AccreditationId for the new token
      * @param tokenId The token id to mint.
      * @param to The address that will receive the minted tokens.
      * @return A boolean that indicates if the operation was successful.
      */
-    function _mintToken(uint256 eventId, uint256 tokenId, address to) internal returns (bool) {
+    function _mintToken(uint256 accreditationId, uint256 tokenId, address to) internal returns (bool) {
         // TODO Verify that the token receiver ('to') do not have already a token for the event ('eventId')
         _mint(to, tokenId);
-        _tokenEvent[tokenId] = eventId;
-        emit EventToken(eventId, tokenId);
+        _tokenAccreditationId[tokenId] = accreditationId;
+        emit AccreditationToken(accreditationId, tokenId);
         return true;
     }
 
@@ -266,10 +289,6 @@ contract Poap is Initializable, ERC721, ERC721Enumerable, PoapRoles, PoapPausabl
             babcde[k++] = _be[i];
         }
         return string(babcde);
-    }
-
-    function removeAdmin(address account) public onlyAdmin {
-        _removeAdmin(account);
     }
 
 }

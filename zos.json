@@ -1,9 +1,10 @@
 {
   "zosversion": "2.2",
-  "name": "poap",
+  "name": "KycDao",
   "version": "0.1.0",
   "contracts": {
-    "Poap": "Poap"
+    "AccreditationRegistry": "AccreditationRegistry",
+    "XAccreditationRegistry": "XAccreditationRegistry"
   },
   "dependencies": {},
   "compiler": {

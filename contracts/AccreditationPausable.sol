@@ -1,13 +1,13 @@
 pragma solidity ^0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
-import "./PoapRoles.sol";
+import "./AccreditationRoles.sol";
 
 /**
  * @title Pausable
  * @dev Base contract which allows children to implement an emergency stop mechanism.
  */
-contract PoapPausable is Initializable, PoapRoles {
+contract AccreditationPausable is Initializable, AccreditationRoles {
     event Paused(address account);
     event Unpaused(address account);
 
